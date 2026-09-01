@@ -74,8 +74,7 @@ train.three_way = True
 
 train.soft_update_mode = "batch" # epoch or batch
 
-# Components of the method. All three are on for the full model; turn them off
-# one at a time to reproduce the ablation of Table IV.
+# Components of the method, all used in the paper.
 train.use_paa_weight = True    # PAA weight (Eq. 1) scales the unsupervised loss
 train.use_umas = True          # UMAS: add the visible and thermal unsupervised losses
 train.use_sc_loss = True       # SC loss (Eq. 8)

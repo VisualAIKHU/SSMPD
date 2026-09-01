@@ -1,9 +1,8 @@
-"""Supervised training of the teacher used to start SSMPD.
+"""Supervised training of the teacher that SSMPD starts from.
 
-Trains SSD300_3Way on the labeled subset only, which is the checkpoint that
-config.soft_teacher.{student,teacher}_checkpoint must point at before running
-train.py. Set config.train.img_set to the labeled list (for example
-"Labeled_10.txt" for the 10% setting) and config.train.checkpoint to None.
+Trains SSD300_3Way on the labeled subset only. Set config.train.img_set to the
+labeled list (for example "Labeled_10.txt" for the 10% setting) and
+config.train.checkpoint to None.
 """
 from datetime import datetime
 from typing import Dict

@@ -42,7 +42,8 @@ pip install -r requirements.txt
 
 ## Weights
 
-We do not release checkpoints. Every checkpoint used in the paper can be reproduced with the scripts in this repository: the labeled and unlabeled splits are in `src/imageSets/`, the supervised teacher is trained with `src/train_teacher.py`, and the full model with `src/train.py`. See [Train](#train).
+We do not release checkpoints. Every model in the paper can be trained with the scripts in this
+repository; see [Train](#train).
 
 ## Dataset
 
@@ -50,7 +51,7 @@ We do not release checkpoints. Every checkpoint used in the paper can be reprodu
 
 * We train with the paired annotations (`annotations_paired`) provided by [AR-CNN](https://github.com/luzhang16/AR-CNN). Download and place them in `data/kaist-rgbt/`.
 
-* The labeled and unlabeled splits we used are in `src/imageSets/` (`1percents_L.txt`, `5percents_L.txt`, `Labeled_10.txt` and the matching unlabeled lists). To build a new split with our data selection, use `data_selection.py`.
+* The labeled and unlabeled splits used in the paper are in `src/imageSets/`. The labeled lists are `1percents_L.txt`, `5percents_L.txt` and `Labeled_10.txt`, with `99percents_U.txt`, `95percents_U.txt` and `Unlabeled_90.txt` as the matching unlabeled lists, and `LLVIP_Labeled_*.txt` / `LLVIP_Unlabeled_*.txt` for LLVIP.
 
 ## Directory
 
@@ -81,64 +82,35 @@ Please place your files according to the directory structure below.
 ├── weights
 │   ├─── teacher_KAIST_10p.pth.tar
 │   └─── SSMPD_KAIST_10p.pth.tar
-├── data_selection.py
-├── expand_teacher_to_3way.py
 ├── train.sh
 └── Inference.sh
 ```
 
-## Data selection
-
-Our data selection (Sec. III-D) encodes every training scene with a pretrained ResNet-50, clusters the scenes with K-means, and samples uniformly by distance inside each cluster, so that a small labeled subset still covers diverse scenes.
-
-<div align=center> <img src="docs/data_selection.png" width="600"/> </div>
-
-```bash
-python data_selection.py
-```
-
-Save the selected ids as the labeled list in `src/imageSets/` and the rest as the matching unlabeled list. Skip this step to reproduce the paper exactly, since the lists we used are already there.
-
 ## Train
 
-Training has two steps: a supervised teacher on the labeled subset, then SSMPD on labeled and unlabeled data together. You can specify the dataset (_e.g.,_ KAIST or LLVIP) via the `dataset_type` option and the labeled ratio (_e.g.,_ 1%, 5% and 10%) via the `percentage` option, both in `src/config.py`.
+We provide an example script to train our method. You can specify the dataset (_e.g.,_ KAIST or
+LLVIP) via the `dataset_type` option and the ratio of labeled data (_e.g.,_ 1%, 5% and 10%) via the
+`percentage` option, both in `src/config.py`.
 
-**1. Teacher.** Point `train.img_set` at the labeled list, set `train.checkpoint = None`, and run:
+SSMPD is a teacher-student framework, so it starts from a teacher trained on the labeled subset.
+Set `train.img_set` to the labeled list and `train.checkpoint` to `None`, then train the teacher:
 
 ```bash
 cd src
 python train_teacher.py
 ```
 
-Checkpoints are written to `src/jobs/<timestamp>_/` every epoch and the test set is scored from epoch 3 on. Take the epoch with the lowest miss rate. If you start from a checkpoint that has a single fusion head, expand it to the three-head model first:
-
-```bash
-python expand_teacher_to_3way.py --input weights/teacher_KAIST_10p.pth.tar \
-                                 --output weights/teacher_KAIST_10p_3way.pth.tar
-```
-
-**2. SSMPD.** Point `soft_teacher.student_checkpoint` and `soft_teacher.teacher_checkpoint` at that teacher, restore `train.img_set`, and run the training script:
+Checkpoints are written to `src/jobs/<timestamp>_/` every epoch and the test set is scored from
+epoch 3 on. Point `soft_teacher.student_checkpoint` and `soft_teacher.teacher_checkpoint` at the
+resulting teacher, restore `train.img_set`, and train SSMPD:
 
 ```bash
 sh train.sh
 ```
 
-The student and the teacher both start from the teacher checkpoint, the teacher is then updated by EMA, and every epoch is scored on the test set.
-
-Defaults follow Sec. IV-B of the paper: SSD300 with a VGG16 backbone, SGD, 6 images per batch (3 labeled and 3 unlabeled), 80 epochs, learning rate 1e-4, `tau1 = 0.9`, `tau2 = 0.7` and temperature `tau = 0.1`.
-
-### Ablation
-
-`src/config.py` exposes the three components as switches, so each row of the ablation is one run, started from the checkpoint of the row above it.
-
-| Row | `use_paa_weight` | `use_umas` | `use_sc_loss` |
-|---|---|---|---|
-| Baseline | False | False | False |
-| + PAA weight | True | False | False |
-| + UMAS learning | True | True | False |
-| + SC loss (full) | True | True | True |
-
-Rows with and without data selection differ only in the labeled subset the teacher was trained on, since data selection acts when the teacher is built.
+Following Sec. IV-B of the paper, we use SSD300 with a VGG16 backbone, SGD, 6 images per batch
+(3 labeled and 3 unlabeled), 80 epochs, learning rate 1e-4, `tau1 = 0.9`, `tau2 = 0.7` and
+temperature `tau = 0.1`.
 
 ## Inference
 
@@ -147,8 +119,6 @@ sh Inference.sh weights/SSMPD_KAIST_10p.pth.tar
 ```
 
 Detections are written to `result/` and scored with the KAIST protocol, the log-average miss rate over FPPI in [1e-2, 1e0] under the `All`, `Day` and `Night` settings. Pass `--vis` to `src/inference.py` to save visualizations.
-
-Checkpoints store the model object rather than a `state_dict`, so `torch.load` needs `src/model.py` importable; run training and inference from inside `src/`, or through the scripts above.
 
 ## Results
 
