@@ -343,35 +343,19 @@ def train_epoch(model: SSD300,
         # Forward prop.
         predicted_locs, predicted_scores = model(image_vis, image_lwir)  # (N, 8732, 4), (N, 8732, n_classes)
 
-        sup_vis_box = list()
-        sup_lwir_box = list()
-        sup_vis_labels = list()
-        sup_lwir_labels = list()
-        sup_predicted_locs = torch.FloatTensor([]).to(device)
-        sup_predicted_scores = torch.FloatTensor([]).to(device)
+        mask = torch.as_tensor(is_anno, dtype=torch.bool, device=device)
 
-        un_vis_box = list()
-        un_lwir_box = list()
-        un_vis_labels = list()
-        un_lwir_labels = list()
-        un_predicted_scores = torch.FloatTensor([]).to(device)
-        un_predicted_locs = torch.FloatTensor([]).to(device)
+        def split(seq):
+            return ([x.to(device) for x, m in zip(seq, is_anno) if m],
+                    [x.to(device) for x, m in zip(seq, is_anno) if not m])
 
-        for anno, vb, lb, vl, ll, pl, ps in zip(is_anno, vis_box, lwir_box, vis_labels, lwir_labels, predicted_locs, predicted_scores):
-            if anno:
-                sup_vis_box.append(vb.to(device))
-                sup_lwir_box.append(lb.to(device))
-                sup_vis_labels.append(vl.to(device))
-                sup_lwir_labels.append(ll.to(device))
-                sup_predicted_locs = torch.cat([sup_predicted_locs, pl.unsqueeze(0).to(device)], dim=0)
-                sup_predicted_scores = torch.cat([sup_predicted_scores, ps.unsqueeze(0).to(device)], dim=0)
-            else:
-                un_vis_box.append(vb.to(device))
-                un_lwir_box.append(lb.to(device))
-                un_vis_labels.append(vl.to(device))
-                un_lwir_labels.append(ll.to(device))
-                un_predicted_locs = torch.cat([un_predicted_locs, pl.unsqueeze(0).to(device)], dim=0)
-                un_predicted_scores = torch.cat([un_predicted_scores, ps.unsqueeze(0).to(device)], dim=0)
+        sup_vis_box,     un_vis_box     = split(vis_box)
+        sup_lwir_box,    un_lwir_box    = split(lwir_box)
+        sup_vis_labels,  un_vis_labels  = split(vis_labels)
+        sup_lwir_labels, un_lwir_labels = split(lwir_labels)
+
+        sup_predicted_locs,   un_predicted_locs   = predicted_locs[mask],   predicted_locs[~mask]
+        sup_predicted_scores, un_predicted_scores = predicted_scores[mask], predicted_scores[~mask]
 
         sup_loss, un_loss = torch.zeros(1)[0].to(device), torch.zeros(1)[0].to(device)
         sup_vis_n_positives, sup_lwir_n_positives, un_vis_n_positives, un_lwir_n_positives = 0, 0, 0, 0
