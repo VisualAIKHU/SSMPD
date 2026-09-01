@@ -391,8 +391,6 @@ def train_epoch(model: SSD300,
         optimizer.zero_grad()
         loss.backward()
 
-        # TODO(sohwang): Do we need this?
-            #loss, cls_loss, loc_loss = criterion(predicted_locs, predicted_scores, boxes, labels)  # scalar
 
         # Clip gradients, if necessary
         if kwargs.get('grad_clip', None):
@@ -507,8 +505,6 @@ def val_epoch(model: SSD300_3Way, dataloader: DataLoader, dataset_type: str, inp
                 boxes_np = boxes_t.cpu().numpy().reshape(-1, 4)
                 scores_np = scores_t.cpu().numpy().mean(axis=1).reshape(-1, 1)
 
-                # TODO(sohwang): check if labels are required
-                # labels_np = labels_t.cpu().numpy().reshape(-1, 1)
 
                 xyxy_np = boxes_np * xyxy_scaler_np
                 xywh_np = xyxy_np

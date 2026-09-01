@@ -97,8 +97,6 @@ def val_epoch(model: SSD300, dataloader: DataLoader, dataset_type: str, input_si
                 boxes_np = boxes_t.cpu().numpy().reshape(-1, 4)
                 scores_np = scores_t.cpu().numpy().mean(axis=1).reshape(-1, 1)
 
-                # TODO(sohwang): check if labels are required
-                # labels_np = labels_t.cpu().numpy().reshape(-1, 1)
 
                 xyxy_np = boxes_np * xyxy_scaler_np
                 xywh_np = xyxy_np

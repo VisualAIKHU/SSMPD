@@ -33,7 +33,6 @@ utils.set_seed(seed=9)
 def main():
     """Train and validate a model"""
 
-    # TODO(sohwang): why do we need these global variables?
     # global epochs_since_improvement, start_epoch, label_map, best_loss, epoch
 
     args = config.args
@@ -98,7 +97,6 @@ def main():
     if args.exp_time is None:
         args.exp_time = datetime.now().strftime('%Y-%m-%d_%Hh%Mm')
     
-    # TODO(sohwang): should config.exp_name be updated from command line argument?
     exp_name = ('_' + args.exp_name) if args.exp_name else '_'
     jobs_dir = os.path.join('jobs', args.exp_time + exp_name)
     os.makedirs(jobs_dir, exist_ok=True)
@@ -197,7 +195,6 @@ def train_epoch(model: SSD300,
         optimizer.zero_grad()
         loss.backward()
 
-        # TODO(sohwang): Do we need this?
         if np.isnan(loss.item()):
             loss, cls_loss, loc_loss = criterion(predicted_locs, predicted_scores, boxes, labels)  # scalar
 

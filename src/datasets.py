@@ -947,7 +947,7 @@ if __name__ == '__main__':
 
     dataset = KAISTPed(args, condition='test')
 
-    # HACK(sohwang): KAISTPed always returns empty boxes in test mode
+    # KAISTPed returns empty boxes in test mode, so switch to train mode here
     dataset.mode = 'train'
 
     vis, lwir, boxes, labels, indices = dataset[1300]
