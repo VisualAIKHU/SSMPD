@@ -91,6 +91,8 @@ Please place your files according to the directory structure below.
 
 Our data selection (Sec. III-D) encodes every training scene with a pretrained ResNet-50, clusters the scenes with K-means, and samples uniformly by distance inside each cluster, so that a small labeled subset still covers diverse scenes.
 
+<div align=center> <img src="docs/data_selection.png" width="600"/> </div>
+
 ```bash
 python data_selection.py
 ```
