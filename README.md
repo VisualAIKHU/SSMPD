@@ -8,7 +8,7 @@ Published at [IEEE Transactions on Multimedia](https://ieeexplore.ieee.org/xpl/R
 
 <a href="https://github.com/0v0V"><strong>Seungho Shin*</strong></a>
 ·
-<a href="https://github.com/cksdlakstp12"><strong>Chan Lee*</strong></a>
+<strong>Chan Lee*</strong>
 ·
 <a href="https://scholar.google.com/citations?user=Sz6rfOMAAAAJ&hl=en"><strong>Gyeong-Moon Park</strong></a>📧
 ·

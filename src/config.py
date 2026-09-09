@@ -98,9 +98,6 @@ if dataset_type == "KAIST":
         train.teacher_img_set = "Unlabeled_90.txt"
         train.U_img_set = "Unlabeled_90.txt"
         train.L_img_set = "Labeled_10.txt"
-        # train.teacher_img_set = "u_fast_test.txt"
-        # train.U_img_set = "u_fast_test.txt"
-        # train.L_img_set = "l_fast_test.txt"
 elif dataset_type == "LLVIP":
     train.img_set = f"LLVIP_train_100p.txt"
     if percentage == 1:
@@ -150,7 +147,7 @@ test.day = "all" # all, day, night
 if dataset_type == "KAIST":
     test.img_set = f"test-{test.day}-20.txt"
 elif dataset_type == "LLVIP":
-    test.img_set = f"LLVIP_test_100p_dn.txt" 
+    test.img_set = f"LLVIP_test_100p.txt"
 
 test.annotation = "AR-CNN"
 
